@@ -13,12 +13,4 @@ ReactDOM.render(
   <p>Boilerplate3</p>,
   document.getElementById('app')
 );
-
-var old = (
-  <Router history={hashHistory}>
-    <Route path = "/" component={Main}>
-      <IndexRoute component={Timer}/>
-      <Route path = "countdown" component={Countdown}/>
-    </Route>
-  </Router>
-);
+require('./redux-example.jsx');
