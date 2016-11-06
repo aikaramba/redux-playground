@@ -13,4 +13,5 @@ ReactDOM.render(
   <p>Boilerplate3</p>,
   document.getElementById('app')
 );
-require('./redux-example.jsx');
+//require('./redux-example.jsx');
+require('./redux-todo-example.jsx');
