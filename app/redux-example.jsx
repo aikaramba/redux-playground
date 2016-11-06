@@ -1,4 +1,5 @@
 var redux = require('redux');
+var axios = require('axios');
 
 console.log('Starting redux example');
 
@@ -84,12 +85,52 @@ var removeMovie = (id) => {
     id
   };
 };
-//------------------------
+// map reducer and action generators
+//----------------------
+var mapReducer = (state = {isFetching: false, url: undefined}, action) => {
+  switch(action.type){
+    case 'START_LOCATION_FETCH':
+      return {
+        isFetching: true,
+        url: undefined
+      };
+    case 'COMPLETE_LOCATION_FETCH':
+      return {
+        isFetching: false,
+        url: action.url
+      };
+    default:
+      return state;
+  }
+};
+
+var startLocationFetch = () => {
+  return {
+    type: 'START_LOCATION_FETCH'
+  };
+};
+var completeLocationFetch = (url) => {
+  return {
+    type: 'COMPLETE_LOCATION_FETCH',
+    url
+  };
+};
+var fetchLocation = () => {
+  store.dispatch(startLocationFetch());
+  axios.get('http://ipinfo.io/json').then((res) => {
+    var loc = res.data.loc;
+    var baseUrl = 'http://maps.google.com?q='
+    store.dispatch(completeLocationFetch(baseUrl + loc));
+  });
+};
+
+//----------------------
 
 var reducer = redux.combineReducers({
   name: nameReducer,
   hobbies: hobbiesReducer,
-  movies: moviesReducer
+  movies: moviesReducer,
+  map: mapReducer
 });
 
 var store = redux.createStore(reducer, redux.compose(
@@ -99,11 +140,16 @@ var store = redux.createStore(reducer, redux.compose(
 // subscribe to changes
 var unsubscribe = store.subscribe(() => {
   var state = store.getState();
-
-  console.log('New name is', state.name);
-  document.getElementById('app').innerHTML = state.name;
   console.log('New State', store.getState())
+  var appEl = document.getElementById('app');
+  if(state.map.isFetching){
+      appEl.innerHTML = 'Loading...';
+  } else if (state.map.url){
+    appEl.innerHTML = `<a target="_blank" href=${state.map.url}>Click me!</a>`;
+  }
 });
+
+fetchLocation();
 //unsubscribe();
 store.dispatch(changeName('Andrew'));
 store.dispatch(addHobby('Running'));
